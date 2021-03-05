@@ -33,8 +33,8 @@ def main():
             p1rotation -= 1
             #print(f'R: {p1rotation}')
         if pygame.key.get_pressed()[pygame.K_DOWN]:
-            p1currentvelx -= 1
-            p1currentvely -= 1
+            p1currentvelx -= math.cos(p1rotation * math.pi / 180)
+            p1currentvely -= math.sin(p1rotation * math.pi / 180)
             print(f'Y: {p1currentvely}')
             print(f'X: {p1currentvelx}')
         if pygame.key.get_pressed()[pygame.K_UP] and player1.maxspeed * -1 < p1currentvely < player1.maxspeed and player1.maxspeed * -1 < p1currentvelx < player1.maxspeed:
@@ -44,7 +44,7 @@ def main():
             print(f'X: {p1currentvelx}')
         #Refresh screen, draw/update player
         screen.fill((50,50,50))
-        player1.update(screen, p1rotation, player1.x % 1280, player1.y % 720)
+        player1.update(screen, p1rotation, player1.x % screenx, player1.y % screeny)
         pygame.display.flip()
 
 if __name__=="__main__":
