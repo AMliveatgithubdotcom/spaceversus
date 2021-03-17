@@ -16,6 +16,8 @@ def main():
     p1currentvely = 0
     running = True
     p1rotation = -90
+    p1rotationmove = p1rotation
+    p1throttling = 0
 
     # main loop
     while running:
@@ -27,22 +29,23 @@ def main():
                 running = False
         #controls, calculation of velocity and acceleration
         if pygame.key.get_pressed()[pygame.K_RIGHT]:
-            p1rotation += 1
+            p1rotation += 5
             #print(f'R: {p1rotation}')
         if pygame.key.get_pressed()[pygame.K_LEFT]:
-            p1rotation -= 1
+            p1rotation -= 5
             #print(f'R: {p1rotation}')
-        if pygame.key.get_pressed()[pygame.K_DOWN]:
-            p1currentvelx -= math.cos(p1rotation * math.pi / 180)
-            p1currentvely -= math.sin(p1rotation * math.pi / 180)
-            print(f'Y: {p1currentvely}')
-            print(f'X: {p1currentvelx}')
-        if pygame.key.get_pressed()[pygame.K_UP] and player1.maxspeed * -1 < p1currentvely < player1.maxspeed and player1.maxspeed * -1 < p1currentvelx < player1.maxspeed:
-            p1currentvelx += math.cos(p1rotation * math.pi / 180)
-            p1currentvely += math.sin(p1rotation * math.pi / 180)
-            print(f'Y: {p1currentvely}')
-            print(f'X: {p1currentvelx}')
+        if pygame.key.get_pressed()[pygame.K_UP]:
+            p1currentvelx += player1.acceleration * math.cos(p1rotationmove * math.pi / 180)
+            p1currentvely += player1.acceleration * math.sin(p1rotationmove * math.pi / 180)
+            p1throttling = 1
+            p1rotationmove = p1rotation
         #Refresh screen, draw/update player
+        if p1throttling == 0 and p1currentvelx != 0 and p1currentvely != 0:
+            if p1currentvelx != 0:
+                p1currentvelx -= 0.01*p1currentvelx
+            if p1currentvely != 0:
+                p1currentvely -= 0.01*p1currentvely
+        p1throttling = 0
         screen.fill((50,50,50))
         player1.update(screen, p1rotation, player1.x % screenx, player1.y % screeny)
         pygame.display.flip()
