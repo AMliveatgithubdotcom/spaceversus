@@ -1,4 +1,3 @@
--Make speed limit actually work / fix movement
--Better border wrapping
 -Projectiles & damage
+-Better border wrapping
 -Enemies
