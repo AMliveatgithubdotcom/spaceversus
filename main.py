@@ -50,13 +50,9 @@ def main():
         # TODO: Round the final result? Movement feels weird. #
         if p1throttling == 0:
             if p1currentvelx != 0:
-                p1currentvelx -= copysign(player1.deceleration, p1currentvelx)
-                p1currentvelx = round(p1currentvelx, 2)
+                p1currentvelx = round(p1currentvelx -copysign(player1.deceleration, p1currentvelx), 2)
             if p1currentvely != 0:
-                p1currentvely -= copysign(player1.deceleration, p1currentvely)
-                p1currentvely = round(p1currentvely, 2)
-            print(f'{p1currentvelx}')
-            print(f'{p1currentvely}')
+                p1currentvely = round(p1currentvely -copysign(player1.deceleration, p1currentvely), 2)
         # Set the throttle back to 0 after every check has been completed in one cycle. #
         p1throttling = 0
         # Redraw the ships at a new position. #
