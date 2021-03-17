@@ -1,8 +1,10 @@
+# Import pygame module and characters from the characters folder
 import pygame
 import math
+from math import copysign
 from characters import characters
 
-# initialization
+# --- Initialization, set up every important variable --- #
 def main():
     pygame.init()
     pygame.font.init()
@@ -19,33 +21,47 @@ def main():
     p1rotationmove = p1rotation
     p1throttling = 0
 
-    # main loop
+    # ---Main loop. This is where moving the ships and reading button presses is handled. --- #
     while running:
         pygame.time.Clock().tick(60)
+    # Move the ship by changing its coordinates. Speed and direction gets calculated when the UP button is pressed. #
         player1.x += p1currentvelx
         player1.y += p1currentvely
+    # End the game #
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-        #controls, calculation of velocity and acceleration
+        # ---Controls, calculation of velocity and acceleration--- #
+        # Rotation #
         if pygame.key.get_pressed()[pygame.K_RIGHT]:
             p1rotation += 5
-            #print(f'R: {p1rotation}')
         if pygame.key.get_pressed()[pygame.K_LEFT]:
             p1rotation -= 5
-            #print(f'R: {p1rotation}')
+        # Deceleration #
+        if pygame.key.get_pressed()[pygame.K_DOWN]:
+            player1.deceleration = 0.1
+        # Enable the ship throttle and accelerate. #
         if pygame.key.get_pressed()[pygame.K_UP]:
-            p1currentvelx += player1.acceleration * math.cos(p1rotationmove * math.pi / 180)
-            p1currentvely += player1.acceleration * math.sin(p1rotationmove * math.pi / 180)
+            if player1.maxspeed*-1 < p1currentvelx < player1.maxspeed:
+                p1currentvelx += player1.acceleration * math.cos(p1rotationmove * math.pi / 180)
+            if player1.maxspeed*-1 < p1currentvely < player1.maxspeed:
+                p1currentvely += player1.acceleration * math.sin(p1rotationmove * math.pi / 180)
             p1throttling = 1
             p1rotationmove = p1rotation
-        #Refresh screen, draw/update player
-        if p1throttling == 0 and p1currentvelx != 0 and p1currentvely != 0:
+        # Check if the ship is throttled. If not, decelerate it slowly. #
+        # TODO: Round the final result? Movement feels weird. #
+        if p1throttling == 0:
             if p1currentvelx != 0:
-                p1currentvelx -= 0.01*p1currentvelx
+                p1currentvelx -= copysign(player1.deceleration, p1currentvelx)
+                p1currentvelx = round(p1currentvelx, 2)
             if p1currentvely != 0:
-                p1currentvely -= 0.01*p1currentvely
+                p1currentvely -= copysign(player1.deceleration, p1currentvely)
+                p1currentvely = round(p1currentvely, 2)
+            print(f'{p1currentvelx}')
+            print(f'{p1currentvely}')
+        # Set the throttle back to 0 after every check has been completed in one cycle. #
         p1throttling = 0
+        # Redraw the ships at a new position. #
         screen.fill((50,50,50))
         player1.update(screen, p1rotation, player1.x % screenx, player1.y % screeny)
         pygame.display.flip()

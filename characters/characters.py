@@ -10,6 +10,7 @@ class player(object):
         self.vel = 5
         self.maxspeed = 10
         self.acceleration = 0.1
+        self.deceleration = 0.01
     def update(self, screen, angle, x, y):
         newimage = pygame.transform.rotate(self.icon, angle * -1)
         screen.blit(newimage, (x - int(newimage.get_width() / 2) , y - int(newimage.get_height() / 2) % 720))
