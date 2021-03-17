@@ -39,12 +39,12 @@ def main():
             p1rotation -= 5
         # Enable the ship throttle and accelerate. #
         if pygame.key.get_pressed()[pygame.K_UP]:
-            if player1.maxspeed*-1 < p1currentvelx < player1.maxspeed:
-                p1currentvelx += player1.acceleration * math.cos(p1rotation * math.pi / 180)
-                p1currentvelx = round(p1currentvelx, 2)
-            if player1.maxspeed*-1 < p1currentvely < player1.maxspeed:
-                p1currentvely += player1.acceleration * math.sin(p1rotation * math.pi / 180)
-                p1currentvely = round(p1currentvely, 2)
+            p1tempvelx = p1currentvelx + player1.acceleration * math.cos(p1rotation * math.pi / 180)
+            p1tempvely = p1currentvely + player1.acceleration * math.sin(p1rotation * math.pi / 180)
+            if player1.maxspeed*-1 < p1tempvelx < player1.maxspeed:
+                p1currentvelx = round(p1tempvelx, 2)
+            if player1.maxspeed*-1 < p1tempvely < player1.maxspeed:
+                p1currentvely = round(p1tempvely, 2)
             p1throttling = True
         if pygame.key.get_pressed()[pygame.K_F5]:
             debugmode = not debugmode
@@ -59,6 +59,7 @@ def main():
         p1throttling = False
         # Redraw the ships at a new position. #
         screen.fill((50,50,50))
+        # Debug Mode #
         if debugmode:
             debugtextx = debugfont.render(f'X VELOCITY: {p1currentvelx}', True, (255, 0, 0))
             debugtexty = debugfont.render(f'Y VELOCITY: {p1currentvely}', True, (255, 0, 0))
