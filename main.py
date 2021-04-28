@@ -14,7 +14,7 @@ class game():
         screenx = 1280
         screeny = 720
         screen = pygame.display.set_mode((screenx, screeny))
-        debugfont = pygame.font.SysFont(None, 24)
+        textfont = pygame.font.SysFont(None, 24)
         projectilesp1 = []
         projectilesp2 = []
         player1 = characters.player(screenx / 2, screeny / 2)
@@ -26,9 +26,9 @@ class game():
         p1throttling = False
         p2throttling = False
         debugmode = False   
-
+        winner = None
         # --- Main loop. This is where moving the ships and reading button presses is handled. --- #
-        while running:
+        while running and winner == None:
         # End the game #
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -83,16 +83,18 @@ class game():
                     p2currentvely = round(p2currentvely -copysign(player2.deceleration, p2currentvely), 2)
             # Set the throttle back to 0 after every check has been completed in one cycle. #
             p1throttling, p2throttling = False, False
+            # --- Controls and velocity / acceleration end --- #
+
             # Move the ship by changing its coordinates. Speed and direction gets calculated when the UP button is pressed. #
             player1.x, player1.y = (player1.x + p1currentvelx) % screenx, (player1.y + p1currentvely) % screeny
             player2.x, player2.y = (player2.x + p2currentvelx) % screenx, (player2.y + p2currentvely) % screeny
-            # Redraw the ships at a new position. #
+            # Fill background color. #
             screen.fill((50,50,50))
             # Debug Mode #
             if debugmode:
-                fps = debugfont.render(str(int(clock.get_fps())), True, (255, 0, 0))
-                debugtextx = debugfont.render(f'X VELOCITY: {p1currentvelx}', True, (255, 0, 0))
-                debugtexty = debugfont.render(f'Y VELOCITY: {p1currentvely}', True, (255, 0, 0))
+                fps = textfont.render(str(int(clock.get_fps())), True, (255, 0, 0))
+                debugtextx = textfont.render(f'X VELOCITY: {p1currentvelx}', True, (255, 0, 0))
+                debugtexty = textfont.render(f'Y VELOCITY: {p1currentvely}', True, (255, 0, 0))
                 screen.blit(debugtextx, (64 , 64))
                 screen.blit(debugtexty, (64 , 78))
                 screen.blit(fps, (64 , 92))
@@ -100,11 +102,8 @@ class game():
             # Process every projectile, move them or delete them if their traveltime has reached the limit. #
             # Player 1 #
             for projectile in projectilesp1:
-                if projectile.traveltime < 1800:
-                    projectile.x = (projectile.x + (10 * projectile.cos)) % screenx
-                    projectile.y = (projectile.y + (10 * projectile.sin)) % screeny
-                    projectile.traveltime = pygame.time.get_ticks() - projectile.starttime
-                    projectile.draw(screen, (255, 0, 0))
+                if projectile.traveltime < 1400:
+                    projectile.draw(screen, screenx, screeny, (255, 0, 0))
                     if math.sqrt((max(projectile.x, player2.x) - min(projectile.x, player2.x))**2 + (max(projectile.y, player2.y) - min(projectile.y, player2.y))**2) < player2.radius + projectile.radius:
                         player2.health -= 10
                         projectilesp1.pop(projectilesp1.index(projectile))
@@ -112,11 +111,8 @@ class game():
                     projectilesp1.pop(projectilesp1.index(projectile))
             # Player 2 #
             for projectile in projectilesp2:
-                if projectile.traveltime < 1800:
-                    projectile.x = (projectile.x + (10 * projectile.cos)) % screenx
-                    projectile.y = (projectile.y + (10 * projectile.sin)) % screeny
-                    projectile.traveltime = pygame.time.get_ticks() - projectile.starttime
-                    projectile.draw(screen, (0, 0, 255))
+                if projectile.traveltime < 1400:
+                    projectile.draw(screen, screenx, screeny, (0, 0, 255))
                     if math.sqrt((max(projectile.x, player1.x) - min(projectile.x, player1.x))**2 + (max(projectile.y, player1.y) - min(projectile.y, player1.y))**2) < player1.radius + projectile.radius:
                         player1.health -= 10
                         projectilesp2.pop(projectilesp2.index(projectile))
@@ -125,12 +121,26 @@ class game():
             # End of Projectiles #
 
             # Game Over Conditions #
-            if (player2.health or player1.health) <= 0:
-                pygame.QUIT
-            # Redraw player.
+            if player1.health <= 0:
+                winner = "Winner: Player Two!"
+            if player2.health <= 0:
+                winner = "Winner: Player One!"
+            # Redraw player. #
             player1.update(screen, p1rotation, player1.x % screenx, player1.y % screeny)
             player2.update(screen, p2rotation, player2.x % screenx, player2.y % screeny)
             pygame.display.flip()
             clock.tick(60)
+        game().gameover(screen, winner, screenx, screeny)
+
+    def gameover(self, screen, winner, screenx, screeny):
+        print(winner)
+        textfont = pygame.font.SysFont(None, 48)
+        screen.fill((20,20,20))
+        screen.blit(textfont.render(winner, True, (0, 255, 0)), (screenx / 2, screeny / 2))
+        pygame.display.flip()
+        pygame.time.wait(10000)
+
+
+        
 
 game().main()
